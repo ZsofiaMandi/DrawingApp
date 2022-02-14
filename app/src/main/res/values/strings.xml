@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">KidsDrawingApp</string>
+    <string name="skin_color">SkinColor</string>
+    <string name="black_color">black color</string>
+    <string name="red_color">red color</string>
+    <string name="green_color">green color</string>
+    <string name="blue_color">blue color</string>
+    <string name="yellow_color">yellow color</string>
+    <string name="lollipop_color">lollipop color</string>
+    <string name="random_color">random color</string>
+    <string name="brush_sizes">brush sizes</string>
+    <string name="white_color">white color</string>
 </resources>

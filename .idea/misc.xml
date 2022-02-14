@@ -9,7 +9,8 @@
         <entry key="..\:/Android/DrawingApp/DrawingApp/app/src/main/res/drawable/medium.xml" value="0.1" />
         <entry key="..\:/Android/DrawingApp/DrawingApp/app/src/main/res/drawable/pallet_normal.xml" value="0.11388888888888889" />
         <entry key="..\:/Android/DrawingApp/DrawingApp/app/src/main/res/drawable/pallet_pressed.xml" value="0.1" />
-        <entry key="..\:/Android/DrawingApp/DrawingApp/app/src/main/res/layout/activity_main.xml" value="0.5" />
+        <entry key="..\:/Android/DrawingApp/DrawingApp/app/src/main/res/layout/activity_main.xml" value="0.16" />
+        <entry key="..\:/Android/DrawingApp/DrawingApp/app/src/main/res/layout/color_picker_dialog.xml" value="0.1734375" />
         <entry key="..\:/Android/DrawingApp/DrawingApp/app/src/main/res/layout/dialog_brush_size.xml" value="0.1" />
       </map>
     </option>
