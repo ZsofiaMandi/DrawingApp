@@ -46,6 +46,13 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         super.onDraw(canvas)
         canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)
 
+        // Drawing all of the saved paths
+        for(path in mPaths){
+            mDrawPaint!!.strokeWidth = path.brushThickness
+            mDrawPaint!!.color = path.color
+            canvas.drawPath(path, mDrawPaint!!)
+        }
+        
         // Drawing a path
         if(!mDrawPath!!.isEmpty){
             mDrawPaint!!.strokeWidth = mDrawPath!!.brushThickness
@@ -78,6 +85,9 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
             }
 
             MotionEvent.ACTION_UP ->{
+                // Saving the path in the mPaths array list
+                // to have multiple paths on the screen at the same time
+                mPaths.add(mDrawPath!!)
                 mDrawPath = CustomPath(color, mBrushSize)
             }
             else -> return false
