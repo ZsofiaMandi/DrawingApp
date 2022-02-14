@@ -6,8 +6,10 @@
             >
             <stroke
                 android:width="2dp"
-                android:color="@color/mid_grey"/>
+                android:color="@color/dark_grey"/>
+
             <solid android:color="@color/transparent"/>
+
             <padding
                 android:bottom="0dp"
                 android:left="0dp"
@@ -23,7 +25,7 @@
             >
             <stroke
                 android:width="2dp"
-                android:color="@color/mid_grey"/>
+                android:color="@color/dark_grey"/>
             <solid android:color="@color/transparent"/>
             <corners android:radius="10dp" />
         </shape>
