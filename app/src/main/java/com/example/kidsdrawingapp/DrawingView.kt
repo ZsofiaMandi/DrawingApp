@@ -3,17 +3,21 @@ package com.example.kidsdrawingapp
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
 
-    private var mDrawPath : CustomPath? = null
-    private var mCanvasBitmap: Bitmap? = null
-    private var mDrawPaint: Paint? = null
-    private var mCanvasPaint: Paint? = null
-    private var mBrushSize: Float = 0.toFloat()
-    private var color = Color.BLACK
+    private var mDrawPath : CustomPath? =
+        null // A variable of CustomPath inner class to use it further
+    private var mCanvasBitmap: Bitmap? = null // An instance of the Bitmap
+    private var mDrawPaint: Paint? =
+        null // The Paint class holds the style and color information about how to draw?
+    private var mCanvasPaint: Paint? = null // Instance of canvas paint view
+    private var mBrushSize: Float =
+        0.toFloat() // A variable for stroke/brush size to draw on the canvas
+    private var color = Color.BLACK // A variable to hold de stroke/ brush size to draw on the canvas
     private var canvas: Canvas? = null
     private val mPaths = ArrayList<CustomPath>()
 
@@ -30,7 +34,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         mDrawPaint!!.strokeJoin = Paint.Join.ROUND
         mDrawPaint!!.strokeCap = Paint.Cap.ROUND
         mCanvasPaint = Paint(Paint.DITHER_FLAG)
-        mBrushSize = 20.toFloat()
+        // mBrushSize = 20.toFloat() // We set in the main activity
 
     }
 
@@ -97,6 +101,14 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         invalidate()
 
         return true
+    }
+
+    fun setSizeForBrush(newSize: Float){
+        // Taking the screen size into consideration
+        mBrushSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            newSize, resources.displayMetrics)
+        mDrawPaint!!.strokeWidth = mBrushSize
     }
 
 
