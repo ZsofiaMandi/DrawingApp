@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                     drawingView?.setCustomColor(color)
                     setPalletPressed(view)
                 }
-                
+
             })
     }
 

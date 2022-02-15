@@ -19,5 +19,6 @@
     <color name="lollipop">#35A79C</color>
     <color name="random">#A349B1</color>
     <color name="transparent">#00000000</color>
+    <color name="grey_layer">#80FFFFFF</color>
 
 </resources>
