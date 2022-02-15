@@ -114,6 +114,11 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         mDrawPaint!!.color = color
     }
 
+    fun setCustomColor(newColor: Int){
+        color = newColor
+        mDrawPaint!!.color = color
+    }
+
 
     internal inner class CustomPath(var color: Int,
                                     var brushThickness: Float) : Path() {

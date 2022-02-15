@@ -1,15 +1,17 @@
 package com.example.kidsdrawingapp
 
 import android.app.Dialog
-import android.media.Image
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
+import top.defaults.colorpicker.ColorPickerPopup
+import top.defaults.colorpicker.ColorPickerPopup.ColorPickerObserver
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -70,6 +72,35 @@ class MainActivity : AppCompatActivity() {
             val imageButton = view as ImageButton
             val colorTag = imageButton.tag.toString()
             drawingView?.setColor(colorTag)
+
+            setPalletPressed(view)
+        }
+    }
+
+    fun customPaintClicked(view: View){
+
+        ColorPickerPopup.Builder(this)
+            .initialColor(Color.RED) // Set initial color
+            .enableBrightness(true) // Enable brightness slider or not
+            .enableAlpha(false) // Enable alpha slider or not
+            .okTitle("Choose")
+            .cancelTitle("Cancel")
+            .showIndicator(true)
+            .showValue(false)
+            .build()
+            .show(view, object : ColorPickerObserver() {
+                override fun onColorPicked(color: Int) {
+                    view.setBackgroundColor(color)
+                    drawingView?.setCustomColor(color)
+                    setPalletPressed(view)
+                }
+                
+            })
+    }
+
+    fun setPalletPressed(view: View){
+        if(view !== mImageButtonCurrentPaint){
+            val imageButton = view as ImageButton
 
             imageButton.setImageDrawable(
                 ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
