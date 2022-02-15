@@ -10,4 +10,6 @@
     <string name="random_color">random color</string>
     <string name="brush_sizes">brush sizes</string>
     <string name="white_color">white color</string>
+    <string name="gallery">import image from gallery</string>
+    <string name="background">background</string>
 </resources>
