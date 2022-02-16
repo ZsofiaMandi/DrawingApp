@@ -17,9 +17,26 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
     private var color = Color.BLACK
     private var canvas: Canvas? = null
     private val mPaths = ArrayList<CustomPath>()
+    private val mUndoPaths = ArrayList<CustomPath>()
 
     init{
         setupDrawing()
+    }
+
+    fun onClickUndo(){
+        if(mPaths.size > 0){
+            // removing the last paths from the mPaths ArrayList
+                // and adding it to the UndoPaths ArrayList
+            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
+            invalidate() // This will call the onDraw override method
+        }
+    }
+
+    fun onClickRedo(){
+        if(mUndoPaths.size > 0){
+            mPaths.add(mUndoPaths.removeAt(mUndoPaths.size - 1))
+            invalidate()
+        }
     }
 
     // Setup the prepared variables
@@ -89,6 +106,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
                 // Saving the path in the mPaths array list
                 // to have multiple paths on the screen at the same time
                 mPaths.add(mDrawPath!!)
+                mUndoPaths.removeAll(mUndoPaths)
                 mDrawPath = CustomPath(color, mBrushSize)
             }
             else -> return false
