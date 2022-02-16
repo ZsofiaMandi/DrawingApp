@@ -3,15 +3,20 @@ package com.example.kidsdrawingapp
 import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import top.defaults.colorpicker.ColorPickerPopup
@@ -22,6 +27,15 @@ class MainActivity : AppCompatActivity() {
 
     private var drawingView: DrawingView? = null
     private var mImageButtonCurrentPaint: ImageButton? = null
+
+    val openGalleryLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+            result ->
+            if(result.resultCode == RESULT_OK && result.data!=null){
+                val imageBackGround: ImageView = findViewById(R.id.iv_background)
+                imageBackGround.setImageURI(result.data?.data)
+            }
+        }
 
     val requestPermission: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){
@@ -36,6 +50,12 @@ class MainActivity : AppCompatActivity() {
                         "Permission is granted, now you can read the storage files.",
                         Toast.LENGTH_LONG
                     ).show()
+
+                     val pickIntent = Intent(Intent.ACTION_PICK,
+                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+
+                    openGalleryLauncher.launch(pickIntent)
+
                 }else if(permissionName == Manifest.permission.READ_EXTERNAL_STORAGE){
                     Toast.makeText(
                         this@MainActivity,
@@ -63,6 +83,11 @@ class MainActivity : AppCompatActivity() {
         val ibBrush : ImageButton = findViewById(R.id.ib_brush)
         ibBrush.setOnClickListener{
             showBrushSizeChooserDialog()
+        }
+
+        val ibGallery : ImageButton = findViewById(R.id.ib_gallery)
+        ibGallery.setOnClickListener{
+            requestStoragePermission()
         }
 
     }
@@ -138,6 +163,22 @@ class MainActivity : AppCompatActivity() {
             )
 
             mImageButtonCurrentPaint = view
+        }
+    }
+
+    private fun requestStoragePermission(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+        ){
+            showRationalDialog("Kids Drawing App", "Kids drawing app needs to" +
+                    " Access Your External storage in order to se a Background image")
+        }else{
+            requestPermission.launch(arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+                // TODO - Add writing external storage permission
+            ))
+
         }
     }
 
