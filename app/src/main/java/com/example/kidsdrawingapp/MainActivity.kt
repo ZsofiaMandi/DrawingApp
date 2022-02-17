@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -12,17 +13,22 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import top.defaults.colorpicker.ColorPickerPopup
 import top.defaults.colorpicker.ColorPickerPopup.ColorPickerObserver
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -102,6 +108,19 @@ class MainActivity : AppCompatActivity() {
             drawingView?.onClickRedo()
         }
 
+        val ibSave : ImageButton = findViewById(R.id.ib_save)
+        ibSave.setOnClickListener {
+            // In newer android versions Write external storage is granted
+            // with read external storage
+            if(isReadStorageAllowed()){
+                lifecycleScope.launch {
+                    val flDrawingView: FrameLayout = findViewById(R.id.fl_view_container)
+                    // Getting bitmap from drawing view and saving the bitmap on the phone
+                    saveBitmapFile(getBitmapFromView(flDrawingView))
+                }
+            }
+        }
+
     }
 
     private fun showBrushSizeChooserDialog() {
@@ -131,6 +150,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
     fun paintClicked(view: View){
         if(view !== mImageButtonCurrentPaint){
             val imageButton = view as ImageButton
@@ -141,6 +161,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Third part library for custom paint selection
     fun customPaintClicked(view: View){
 
         ColorPickerPopup.Builder(this)
@@ -162,6 +183,7 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
+    // Setting the selected pallet border
     fun setPalletPressed(view: View){
         if(view !== mImageButtonCurrentPaint){
             val imageButton = view as ImageButton
@@ -178,6 +200,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun isReadStorageAllowed(): Boolean{
+        val result = ContextCompat.checkSelfPermission(this,
+        Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        return result == PackageManager.PERMISSION_GRANTED
+    }
+
     private fun requestStoragePermission(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
@@ -187,27 +216,79 @@ class MainActivity : AppCompatActivity() {
                     " Access Your External storage in order to se a Background image")
         }else{
             requestPermission.launch(arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
-                // TODO - Add writing external storage permission
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             ))
 
         }
     }
 
+    // Creating bitmap from the view, making a sandwich
     private fun getBitmapFromView(view: View) : Bitmap {
         val returnedBitmap = Bitmap.createBitmap(view.width,
             view.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(returnedBitmap)
         val bgDrawable = view.background
         if(bgDrawable != null){
+            // draw background on the a canvas
             bgDrawable.draw(canvas)
         }else{
+            // draw a white background on the canvas if it doesn't have a background
             canvas.drawColor(Color.WHITE)
         }
 
         view.draw(canvas)
 
         return returnedBitmap
+    }
+
+    private suspend fun saveBitmapFile(mBitmap: Bitmap?): String{
+        // implementation 'androidx.activity:activity-ktx:1.5.0-alpha02'
+        // Implementation is needed in gradle :app file
+        var result = ""
+        withContext(Dispatchers.IO){
+            if (mBitmap != null){
+                try {
+                    val bytes = ByteArrayOutputStream()
+                    // Creating a PNG from bitmap
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 90, bytes)
+
+                    // Creating a file, passing the location and the file name
+                    val f = File(externalCacheDir?.absoluteFile.toString()
+                            + File.separator + "KidsDrawingApp_"
+                            + System.currentTimeMillis() / 1000 + ".png"
+                    )
+
+                    val fo = FileOutputStream(f)    // creating the file output stream
+                    fo.write(bytes.toByteArray())   // writing
+                    fo.close()                      // closing the file
+
+                    result = f.absolutePath
+
+                    runOnUiThread {
+                        if(result.isNotEmpty()){
+                            Toast.makeText(
+                                this@MainActivity,
+                                "File saved successfully :$result",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }else{
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Something went wrong while saving the file",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+                catch (e: Exception){
+                    result =""
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        return result
     }
 
     private fun showRationalDialog(title: String, message: String){
