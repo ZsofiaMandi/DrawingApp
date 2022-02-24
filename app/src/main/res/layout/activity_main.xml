@@ -216,7 +216,6 @@
             android:scaleType="fitXY"
             android:contentDescription="@string/save" />
 
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

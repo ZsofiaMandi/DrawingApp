@@ -23,6 +23,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         setupDrawing()
     }
 
+    // Removing the last path from the saved paths
     fun onClickUndo(){
         if(mPaths.size > 0){
             // removing the last paths from the mPaths ArrayList
@@ -32,6 +33,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         }
     }
 
+    // Pasting back the last removed path to the saved path
     fun onClickRedo(){
         if(mUndoPaths.size > 0){
             mPaths.add(mUndoPaths.removeAt(mUndoPaths.size - 1))
@@ -118,6 +120,8 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         return true
     }
 
+
+    // Setting the size for the brush
     fun setSizeForBrush(newSize: Float){
         // Taking the screen size into consideration
         mBrushSize = TypedValue.applyDimension(
@@ -127,20 +131,20 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
     }
 
 
+    // Setting the selected color
     fun setColor(newColor: String){
         color = Color.parseColor(newColor)
         mDrawPaint!!.color = color
     }
 
+    // A function to set the color from the custom ColorPicker dialog
     fun setCustomColor(newColor: Int){
         color = newColor
         mDrawPaint!!.color = color
     }
 
-
+    // Inner class for customPath
     internal inner class CustomPath(var color: Int,
-                                    var brushThickness: Float) : Path() {
-
-    }
+                                    var brushThickness: Float) : Path() {}
 
 }

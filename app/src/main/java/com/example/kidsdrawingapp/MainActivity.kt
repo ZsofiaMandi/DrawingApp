@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     private var drawingView: DrawingView? = null
     private var mImageButtonCurrentPaint: ImageButton? = null
+    var customProgressDialog: Dialog? = null
 
     val openGalleryLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
@@ -53,11 +57,11 @@ class MainActivity : AppCompatActivity() {
                 val isGranted = it.value
 
                 if (isGranted){
-                    Toast.makeText(
+              /*     Toast.makeText(
                         this@MainActivity,
-                        "Permission is granted, now you can read the storage files.",
+                        "Permission is granted, you can read the storage files.",
                         Toast.LENGTH_LONG
-                    ).show()
+                    ).show()*/
 
                      val pickIntent = Intent(Intent.ACTION_PICK,
                          MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -113,6 +117,7 @@ class MainActivity : AppCompatActivity() {
             // In newer android versions Write external storage is granted
             // with read external storage
             if(isReadStorageAllowed()){
+                showProgressDialog()
                 lifecycleScope.launch {
                     val flDrawingView: FrameLayout = findViewById(R.id.fl_view_container)
                     // Getting bitmap from drawing view and saving the bitmap on the phone
@@ -123,6 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Show the dialog for selecting the brush size
     private fun showBrushSizeChooserDialog() {
         val brushDialog = Dialog(this)
         brushDialog.setContentView(R.layout.dialog_brush_size) // Set how the dialog should look like
@@ -150,7 +156,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
+    // Set color when clicking on a paint
     fun paintClicked(view: View){
         if(view !== mImageButtonCurrentPaint){
             val imageButton = view as ImageButton
@@ -200,6 +206,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Check if read storage is allowed or not
     private fun isReadStorageAllowed(): Boolean{
         val result = ContextCompat.checkSelfPermission(this,
         Manifest.permission.READ_EXTERNAL_STORAGE
@@ -207,6 +214,7 @@ class MainActivity : AppCompatActivity() {
         return result == PackageManager.PERMISSION_GRANTED
     }
 
+    // Requesting storage permission
     private fun requestStoragePermission(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
@@ -242,6 +250,7 @@ class MainActivity : AppCompatActivity() {
         return returnedBitmap
     }
 
+    // Saving the sandwich from background, layer, and canvas drawing into a bitmap
     private suspend fun saveBitmapFile(mBitmap: Bitmap?): String{
         // implementation 'androidx.activity:activity-ktx:1.5.0-alpha02'
         // Implementation is needed in gradle :app file
@@ -266,12 +275,18 @@ class MainActivity : AppCompatActivity() {
                     result = f.absolutePath
 
                     runOnUiThread {
+                        cancelProgressDialog()
                         if(result.isNotEmpty()){
                             Toast.makeText(
                                 this@MainActivity,
                                 "File saved successfully :$result",
                                 Toast.LENGTH_LONG
                             ).show()
+                            shareImage(FileProvider.getUriForFile(
+                                baseContext,
+                                "com.example.kidsdrawingapp.fileprovider",
+                                f)
+                            )
                         }else{
                             Toast.makeText(
                                 this@MainActivity,
@@ -291,6 +306,7 @@ class MainActivity : AppCompatActivity() {
         return result
     }
 
+    // Function for showing rational dialog
     private fun showRationalDialog(title: String, message: String){
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setTitle(title)
@@ -299,6 +315,30 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
         builder.create().show()
+    }
+
+    // Show progress dialog while saving the image
+    private fun showProgressDialog(){
+        customProgressDialog = Dialog(this@MainActivity)
+        customProgressDialog?.setContentView(R.layout.dialog_custom_progress)
+        customProgressDialog?.show()
+    }
+
+    // Cancel the progress dialog
+    private fun cancelProgressDialog(){
+        if(customProgressDialog != null){
+            customProgressDialog?.dismiss()
+            customProgressDialog = null
+        }
+    }
+
+    // Sharing image with other applications
+    private fun shareImage(uri: Uri){
+        val shareIntent = Intent()
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+        shareIntent.type = "image/png"
+        startActivity(Intent.createChooser(shareIntent, "Share"))
     }
 
 }
