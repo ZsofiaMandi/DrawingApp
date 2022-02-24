@@ -20,9 +20,28 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
     private var color = Color.BLACK // A variable to hold de stroke/ brush size to draw on the canvas
     private var canvas: Canvas? = null
     private val mPaths = ArrayList<CustomPath>()
+    private val mUndoPaths = ArrayList<CustomPath>()
 
     init{
         setupDrawing()
+    }
+
+    // Removing the last path from the saved paths
+    fun onClickUndo(){
+        if(mPaths.size > 0){
+            // removing the last paths from the mPaths ArrayList
+                // and adding it to the UndoPaths ArrayList
+            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
+            invalidate() // This will call the onDraw override method
+        }
+    }
+
+    // Pasting back the last removed path to the saved path
+    fun onClickRedo(){
+        if(mUndoPaths.size > 0){
+            mPaths.add(mUndoPaths.removeAt(mUndoPaths.size - 1))
+            invalidate()
+        }
     }
 
     // Setup the prepared variables
@@ -34,7 +53,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         mDrawPaint!!.strokeJoin = Paint.Join.ROUND
         mDrawPaint!!.strokeCap = Paint.Cap.ROUND
         mCanvasPaint = Paint(Paint.DITHER_FLAG)
-        // mBrushSize = 20.toFloat() // We set in the main activity
+        //mBrushSize = 20.toFloat()
 
     }
 
@@ -92,6 +111,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
                 // Saving the path in the mPaths array list
                 // to have multiple paths on the screen at the same time
                 mPaths.add(mDrawPath!!)
+                mUndoPaths.removeAll(mUndoPaths)
                 mDrawPath = CustomPath(color, mBrushSize)
             }
             else -> return false
@@ -111,10 +131,30 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         mDrawPaint!!.strokeWidth = mBrushSize
     }
 
-
-    internal inner class CustomPath(var color: Int,
-                                    var brushThickness: Float) : Path() {
-
+    // Setting the size for the brush
+    fun setSizeForBrush(newSize: Float){
+        // Taking the screen size into consideration
+        mBrushSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            newSize, resources.displayMetrics)
+        mDrawPaint!!.strokeWidth = mBrushSize
     }
+
+
+    // Setting the selected color
+    fun setColor(newColor: String){
+        color = Color.parseColor(newColor)
+        mDrawPaint!!.color = color
+    }
+
+    // A function to set the color from the custom ColorPicker dialog
+    fun setCustomColor(newColor: Int){
+        color = newColor
+        mDrawPaint!!.color = color
+    }
+
+    // Inner class for customPath
+    internal inner class CustomPath(var color: Int,
+                                    var brushThickness: Float) : Path() {}
 
 }

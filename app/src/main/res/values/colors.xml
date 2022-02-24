@@ -9,4 +9,16 @@
     <color name="white">#FFFFFFFF</color>
     <color name="light_grey">#9AA2AF</color>
     <color name="grey">#FF666666</color>
+    <color name="mid_grey">#FF999999</color>
+    <color name="dark_grey">#FF333333</color>
+    <color name="skin">#FFCC99</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
+    <color name="blue">#0000FF</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="lollipop">#35A79C</color>
+    <color name="random">#A349B1</color>
+    <color name="transparent">#00000000</color>
+    <color name="grey_layer">#80FFFFFF</color>
+
 </resources>
